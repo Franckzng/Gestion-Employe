@@ -1,0 +1,127 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+  HR
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LeaveType {
+  SICK
+  VACATION
+  PERSONAL
+  MATERNITY
+  PATERNITY
+}
+
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  password      String
+  role          Role        @default(EMPLOYEE)
+  employee      Employee?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Employee {
+  id              String        @id @default(uuid())
+  userId          String        @unique
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  firstName       String
+  lastName        String
+  phone           String?
+  address         String?
+  position        String
+  department      String
+  salary          Float?
+  hireDate        DateTime      @default(now())
+  birthDate       DateTime?
+  
+  profileImage    String?
+  isActive        Boolean       @default(true)
+  
+  attendances     Attendance[]
+  leaveRequests   LeaveRequest[]
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([department])
+  @@index([isActive])
+}
+
+model Attendance {
+  id            String            @id @default(uuid())
+  employeeId    String
+  employee      Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  date          DateTime          @default(now())
+  checkIn       DateTime?
+  checkOut      DateTime?
+  status        AttendanceStatus  @default(PRESENT)
+  
+  workHours     Float?            // Heures travaillées
+  notes         String?
+  
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([date])
+}
+
+model LeaveRequest {
+  id            String        @id @default(uuid())
+  employeeId    String
+  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  leaveType     LeaveType
+  startDate     DateTime
+  endDate       DateTime
+  reason        String
+  status        LeaveStatus   @default(PENDING)
+  
+  reviewedBy    String?       // ID de l'admin qui a approuvé/rejeté
+  reviewedAt    DateTime?
+  reviewNotes   String?
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([employeeId])
+  @@index([status])
+}
+
+model Settings {
+  id                String    @id @default(uuid())
+  key               String    @unique
+  value             String
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
