@@ -49,7 +49,7 @@ async function main() {
       employee: {
         create: {
           firstName: 'Sophie',
-          lastName: 'Martin',
+          lastName: 'Sanou',
           position: 'Responsable RH',
           department: 'Ressources Humaines',
           phone: '+226 70 12 34 56',
@@ -68,9 +68,9 @@ async function main() {
   // Créer des employés de test
   const employees = [
     {
-      email: 'jean.dupont@aeris.com',
+      email: 'jean.Kaboret@aeris.com',
       firstName: 'Jean',
-      lastName: 'Dupont',
+      lastName: 'Kabore',
       position: 'Développeur Full-Stack',
       department: 'IT',
       phone: '+226 70 11 22 33',
@@ -84,12 +84,12 @@ async function main() {
       phone: '+226 70 44 55 66',
     },
     {
-      email: 'ibrahim.ouedraogo@aeris.com',
-      firstName: 'Ibrahim',
-      lastName: 'Ouedraogo',
+      email: 'Franckzongo@aeris.com',
+      firstName: 'Franck',
+      lastName: 'Zongo',
       position: 'Chef de Projet',
       department: 'Management',
-      phone: '+226 70 77 88 99',
+      phone: '+226 66 09 57 81',
     },
   ];
 
