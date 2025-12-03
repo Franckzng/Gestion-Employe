@@ -25,28 +25,40 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Email et mot de passe requis' });
     }
 
+    // Validation format email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Format d\'email invalide' });
+    }
+
     // Vérifier si l'utilisateur existe
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase().trim() },
       include: {
         employee: true
       }
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+      return res.status(401).json({ 
+        error: 'Email ou mot de passe incorrect' 
+      });
     }
 
     // Vérifier le mot de passe
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+      return res.status(401).json({ 
+        error: 'Email ou mot de passe incorrect' 
+      });
     }
 
     // Vérifier si l'employé est actif
     if (user.employee && !user.employee.isActive) {
-      return res.status(403).json({ error: 'Compte désactivé. Contactez l\'administrateur.' });
+      return res.status(403).json({ 
+        error: 'Votre compte a été désactivé. Contactez l\'administrateur.' 
+      });
     }
 
     // Générer le token
@@ -57,11 +69,14 @@ const login = async (req, res) => {
 
     res.json({
       token,
-      user: userWithoutPassword
+      user: userWithoutPassword,
+      message: 'Connexion réussie'
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Erreur lors de la connexion' });
+    res.status(500).json({ 
+      error: 'Une erreur est survenue lors de la connexion. Veuillez réessayer.' 
+    });
   }
 };
 
